@@ -20,13 +20,7 @@ var getFinalGrade = function(final){
 var getFinal = function(penguin){
     return penguin.quizes.map(getFinalGrade)
 }
-var xScale = d3.scaleLinear()
-    .domain([0,d3.max(getHomeworkAvg(penguin))])
-    .range([0,400]);
 
-var yScale = d3.scaleLinear()
-    .domain([0,d3.max(getFinal(penguin))])
-    .range([400,0]);
 
 var drawPlot = function(penguin,screen,xScale,yScale){
     d3.select("#graph")
@@ -35,39 +29,56 @@ var drawPlot = function(penguin,screen,xScale,yScale){
     .enter()
     .append("circle")
     .attr("cx",function(penguin){
-        return xScale(getHomeworkAvg(penguin))
+        return xScale(getHomeworkAvg(penguin));
     })
     .attr("cy",function(penguin){
-        return yScale(getFinal(penguin))
+        return yScale(getFinal(penguin));
     })
     .attr("r",4)
+    .attr("fill", "blue")
+    .on("mouseenter", function(penguin){
+            console.log("hovering");
+            var xPos = d3.event.pageX;
+            var yPos = d3.event.pageY;
+            d3.select("#tooltip")
+            .classed("hidden", "false")
+            .style("top", yPos+"px")
+            .style("left", xPos+"px")
+        
+            d3.select("#tooltip")
+            .append("img")
+            .attr("src",getImage(penguin))
+    })
 }
 
 var initGraph = function(penguin){
-    var screen = {width:600,height:600}
+    
+    var screen = {width:600,height:600};
     
     d3.select("#graph")
     .attr("width",screen.width)
-    .attr("height",screen.height)
+    .attr("height",screen.height);
     
     
     var xScale = d3.scaleLinear()
         .domain([0,550])
-        .range([0,screen.width])
+        .range([0,screen.width]);
     
     var yScale = d3.scaleLinear()
         .domain([0,550])
-        .range([screen.height,0])
+        .range([screen.height,0]);
     
     drawPlot(penguin,screen,xScale,yScale);
 }
 
 var successFCN = function(penguin){
-    console.log("student data", students);
-    initGraph(penguin)
-    drawPlot(penguin)
+    console.log("student data", penguin);
+    initGraph(penguin);
+    
 }
 
 var failFCN = function(errorMSG){
     console.log(errorMSG)
 }
+
+penguinPromise.then(successFCN, failFCN)
